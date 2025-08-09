@@ -234,7 +234,9 @@ const rollDices = (game) => {
   // if last roll we lock every dice
   if (rollsCounter - 1 === rollsMaximum) {
     game.gameState.deck.dices = GameService.dices.lockEveryDice(dices);
-    game.gameState.timer = 5;
+    if (game.gameState.timer < 5 || combinations.length === 0) {
+      game.gameState.timer = 5;
+    }
   }
 
   // Update clients view
