@@ -10,6 +10,10 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
+server.listen(3000, function () {
+  console.log("listening on *:3000");
+});
+
 // ---------------------------------------------------
 // -------- CONSTANTS AND GLOBAL VARIABLES -----------
 // ---------------------------------------------------
@@ -478,14 +482,4 @@ io.on("connection", (socket) => {
     console.log(`[${socket.id}] socket disconnected - ${reason}`);
     queue = GameService.utils.removePlayerFromQueue(queue, socket);
   });
-});
-
-// -----------------------------------
-// -------- SERVER METHODS -----------
-// -----------------------------------
-
-app.get("/", (req, res) => res.sendFile("index.html"));
-
-server.listen(3000, function () {
-  console.log("listening on *:3000");
 });
