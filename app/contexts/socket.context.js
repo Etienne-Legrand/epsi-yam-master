@@ -3,7 +3,9 @@ import { Platform } from "react-native";
 import io from "socket.io-client";
 
 export const socketEndpoint =
-  Platform.OS === "web" ? "http://localhost:3000" : "http://10.60.104.242:3000";
+  Platform.OS === "web"
+    ? process.env.EXPO_PUBLIC_SOCKET_URL_WEB
+    : process.env.EXPO_PUBLIC_SOCKET_URL_MOBILE;
 
 export const socket = io(socketEndpoint, {
   transports: ["websocket"],
