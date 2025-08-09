@@ -1,5 +1,5 @@
 {
-  "name": "yam-master",
+  "name": "yam-master-frontend",
   "version": "1.0.0",
   "dependencies": {
     "@expo/metro-runtime": "~3.2.1",
