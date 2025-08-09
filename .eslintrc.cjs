@@ -4,6 +4,14 @@ module.exports = {
   extends: ["eslint:recommended", "plugin:react/recommended"],
   ignorePatterns: ["dist", ".eslintrc.cjs"],
   parser: "@babel/eslint-parser",
+  parserOptions: {
+    requireConfigFile: false,
+    ecmaVersion: 2020,
+    sourceType: "module",
+    ecmaFeatures: {
+      jsx: true,
+    },
+  },
   plugins: ["react"],
   rules: {
     "react/react-in-jsx-scope": "off",

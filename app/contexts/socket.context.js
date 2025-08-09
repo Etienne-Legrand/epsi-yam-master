@@ -9,17 +9,19 @@ export const socket = io(socketEndpoint, {
   transports: ["websocket"],
 });
 
-export let hasConnection = false;
+const hasConnectionRef = { current: false };
 
 socket.on("connect", () => {
   console.log("connect: ", socket.id);
-  hasConnection = true;
+  hasConnectionRef.current = true;
 });
 
 socket.on("disconnect", () => {
-  hasConnection = false;
+  hasConnectionRef.current = false;
   console.log("disconnected from server"); // undefined
   socket.removeAllListeners();
 });
+
+export const hasConnection = hasConnectionRef;
 
 export const SocketContext = React.createContext();
