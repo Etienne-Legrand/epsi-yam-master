@@ -1,11 +1,9 @@
 import React from "react";
-import { Platform } from "react-native";
 import io from "socket.io-client";
 
 export const socketEndpoint =
-  Platform.OS === "web"
-    ? process.env.EXPO_PUBLIC_SOCKET_URL_WEB
-    : process.env.EXPO_PUBLIC_SOCKET_URL_MOBILE;
+  process.env.EXPO_PUBLIC_SOCKET_URL_MOBILE ||
+  process.env.EXPO_PUBLIC_SOCKET_URL_WEB;
 
 export const socket = io(socketEndpoint, {
   transports: ["websocket"],
