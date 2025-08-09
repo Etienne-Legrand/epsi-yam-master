@@ -1,5 +1,6 @@
 import React from "react";
 import { TouchableOpacity, Text, StyleSheet } from "react-native";
+import { colors } from "../../../constants/colors";
 
 const Choice = ({ choice, idSelectedChoice, canMakeChoice, onPress }) => {
   const handlePress = () => onPress(choice.id);
@@ -22,7 +23,7 @@ const Choice = ({ choice, idSelectedChoice, canMakeChoice, onPress }) => {
 
 const styles = StyleSheet.create({
   choiceButton: {
-    backgroundColor: "#f2d3ab",
+    backgroundColor: colors.beige,
     borderRadius: 5,
     margin: 5,
     flexDirection: "row",
@@ -32,7 +33,7 @@ const styles = StyleSheet.create({
     height: 40,
   },
   selectedChoice: {
-    backgroundColor: "#c69fa5",
+    backgroundColor: colors.lightPink,
   },
   disabledChoice: {
     opacity: 0.5,
@@ -40,7 +41,7 @@ const styles = StyleSheet.create({
   choiceText: {
     fontSize: 15,
     fontWeight: "bold",
-    color: "#494d7e",
+    color: colors.indigo,
   },
 });
 

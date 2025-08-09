@@ -1,6 +1,7 @@
 import { StyleSheet, View } from "react-native";
 import Header from "../components/header";
 import Button from "../components/button";
+import { colors } from "../constants/colors";
 
 export default function HomeScreen({ navigation }) {
   return (
@@ -29,7 +30,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#272744",
+    backgroundColor: colors.darkBlue,
   },
   bloc: {
     margin: 40,

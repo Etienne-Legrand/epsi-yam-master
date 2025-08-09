@@ -64,8 +64,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     margin: 5,
     borderRadius: 25,
-    borderColor: "#494d7e",
-    backgroundColor: "#494d7e",
+    borderColor: colors.indigo,
+    backgroundColor: colors.indigo,
   },
   choicesText: {
     marginLeft: 10,

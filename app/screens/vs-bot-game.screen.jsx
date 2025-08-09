@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import { StyleSheet, View, Text } from "react-native";
 import { SocketContext } from "../contexts/socket.context";
 import VsBotGameController from "../controllers/vs-bot-game.controller";
+import { colors } from "../constants/colors";
 
 export default function VsBotGameScreen({ navigation }) {
   const socket = useContext(SocketContext);
@@ -27,6 +28,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#272744",
+    backgroundColor: colors.darkBlue,
   },
 });

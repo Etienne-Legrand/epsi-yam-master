@@ -4,6 +4,7 @@ import { SocketContext } from "../contexts/socket.context";
 import Board from "../components/board/board.component";
 import Header from "../components/header";
 import Button from "../components/button";
+import { colors } from "../constants/colors";
 
 export default function VsBotGameController({ navigation }) {
   const socket = useContext(SocketContext);
@@ -94,12 +95,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: "100%",
     height: "100%",
-    backgroundColor: "#272744",
+    backgroundColor: colors.darkBlue,
   },
   paragraph: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#8B6D9C",
+    color: colors.mauve,
   },
   spacing: {
     paddingTop: 30,

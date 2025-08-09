@@ -1,6 +1,5 @@
-import React from "react";
-import { View, Text, StyleSheet, Platform } from "react-native";
 import { useContext } from "react";
+import { View, Text, StyleSheet, Platform } from "react-native";
 import { SocketContext } from "../../contexts/socket.context";
 import PlayerDeck from "./decks/player-deck.component";
 import OpponentDeck from "./decks/opponent-deck.component";
@@ -13,6 +12,7 @@ import PlayerScore from "./scores/playerScore.component";
 import OpponentScore from "./scores/opponentScore.component";
 import OpponentPawns from "./pawns/opponentPawns.component";
 import Button from "../button";
+import { colors } from "../../constants/colors";
 
 const OpponentInfos = () => {
   return (
@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
     width: "100%",
     maxWidth: "600px",
     height: "100%",
-    backgroundColor: "#272744",
+    backgroundColor: colors.darkBlue,
   },
   row: {
     flexDirection: "row",
@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
     flex: 7,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#494d7e",
+    backgroundColor: colors.indigo,
   },
   opponentInfosText: {
     color: "white",
@@ -136,14 +136,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     color: "white",
-    backgroundColor: "#494d7e",
+    backgroundColor: colors.indigo,
   },
   playerInfosContainer: {
     flex: 7,
     justifyContent: "center",
     alignItems: "center",
     color: "white",
-    backgroundColor: "#494d7e",
+    backgroundColor: colors.indigo,
   },
   playerInfosText: {
     color: "white",

@@ -5,6 +5,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
+import { colors } from "../../../constants/colors";
 
 const Dice = ({ index, locked, value, onPress, opponent, rollsCounter }) => {
   const handlePress = () => onPress(index, opponent);
@@ -50,12 +51,12 @@ const createStyles = StyleSheet.create((diceWidth) => ({
     alignItems: "center",
   },
   lockedDice: {
-    backgroundColor: "#c69fa5",
+    backgroundColor: colors.lightPink,
   },
   diceText: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#494d7e",
+    color: colors.indigo,
   },
 }));
 

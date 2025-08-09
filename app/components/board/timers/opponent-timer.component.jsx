@@ -25,7 +25,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     color: "white",
-    backgroundColor: "#494d7e",
+    backgroundColor: colors.indigo,
   },
   opponentTimerText: {
     color: colors.white,
