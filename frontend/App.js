@@ -28,7 +28,7 @@ function App() {
           initialRouteName="HomeScreen"
           screenOptions={{
             headerShown: false,
-            // cardStyle: { backgroundColor: colors.darkBlue },
+            cardStyle: { backgroundColor: colors.darkBlue },
           }}
         >
           <Stack.Screen name="HomeScreen" component={HomeScreen} />

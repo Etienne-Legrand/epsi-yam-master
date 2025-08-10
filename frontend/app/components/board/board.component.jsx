@@ -25,7 +25,7 @@ const OpponentInfos = () => {
 const PlayerInfos = () => {
   return (
     <View style={styles.playerInfosContainer}>
-      <Text style={styles.playerInfosText}>Player Infos</Text>
+      <Text style={styles.playerInfosText}>Joueur</Text>
     </View>
   );
 };
