@@ -5,32 +5,40 @@ import Dice from "./dice.component";
 
 const OpponentDeck = () => {
   const socket = useContext(SocketContext);
-  const [displayOpponentDeck, setDisplayOpponentDeck] = useState(false);
-  const [opponentDices, setOpponentDices] = useState(
-    Array(5).fill({ value: "", locked: false })
-  );
+  const [displayDeck, setDisplayDeck] = useState(false);
+  const [dices, setDices] = useState([
+    { id: 1, value: "", locked: false },
+    { id: 2, value: "", locked: false },
+    { id: 3, value: "", locked: false },
+    { id: 4, value: "", locked: false },
+    { id: 5, value: "", locked: false },
+  ]);
+  const [rollsCounter, setRollsCounter] = useState(0);
 
   useEffect(() => {
     socket.on("game.deck.view-state", (data) => {
-      console.log("game.deck.view-state", data);
-
-      setDisplayOpponentDeck(data["displayOpponentDeck"]);
+      // console.log("game.deck.view-state", data);
+      setDisplayDeck(data["displayOpponentDeck"]);
       if (data["displayOpponentDeck"]) {
-        setOpponentDices(data["dices"]);
+        setRollsCounter(data["rollsCounter"]);
+        setDices(data["dices"]);
       }
     });
   }, []);
 
   return (
     <View style={styles.deckOpponentContainer}>
-      {displayOpponentDeck && (
+      {displayDeck && (
         <View style={styles.diceContainer}>
-          {opponentDices.map((diceData, index) => (
+          {dices.map((diceData, index) => (
             <Dice
-              key={index}
+              key={diceData.id}
+              index={index}
               locked={diceData.locked}
               value={diceData.value}
+              onPress={() => {}} // No-op for opponent dices
               opponent={true}
+              rollsCounter={rollsCounter}
             />
           ))}
         </View>

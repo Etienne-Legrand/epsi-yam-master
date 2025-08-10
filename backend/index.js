@@ -58,34 +58,28 @@ const updateClientsViewPawns = (game) =>
   );
 
 const updateClientsViewDecks = (game) =>
-  setTimeout(() => {
-    emitToPlayers(
-      game,
-      "game.deck.view-state",
-      GameService.send.forPlayer.deckViewState("player:1", game.gameState),
-      GameService.send.forPlayer.deckViewState("player:2", game.gameState)
-    );
-  }, 50);
+  emitToPlayers(
+    game,
+    "game.deck.view-state",
+    GameService.send.forPlayer.deckViewState("player:1", game.gameState),
+    GameService.send.forPlayer.deckViewState("player:2", game.gameState)
+  );
 
 const updateClientsViewChoices = (game) =>
-  setTimeout(() => {
-    emitToPlayers(
-      game,
-      "game.choices.view-state",
-      GameService.send.forPlayer.choicesViewState("player:1", game.gameState),
-      GameService.send.forPlayer.choicesViewState("player:2", game.gameState)
-    );
-  }, 50);
+  emitToPlayers(
+    game,
+    "game.choices.view-state",
+    GameService.send.forPlayer.choicesViewState("player:1", game.gameState),
+    GameService.send.forPlayer.choicesViewState("player:2", game.gameState)
+  );
 
 const updateClientsViewGrid = (game) =>
-  setTimeout(() => {
-    emitToPlayers(
-      game,
-      "game.grid.view-state",
-      GameService.send.forPlayer.gridViewState("player:1", game.gameState),
-      GameService.send.forPlayer.gridViewState("player:2", game.gameState)
-    );
-  }, 50);
+  emitToPlayers(
+    game,
+    "game.grid.view-state",
+    GameService.send.forPlayer.gridViewState("player:1", game.gameState),
+    GameService.send.forPlayer.gridViewState("player:2", game.gameState)
+  );
 
 function updateClientsViewScore(game) {
   emitToPlayers(
@@ -177,11 +171,13 @@ const createGame = (player1Socket, player2Socket, data) => {
   // Send game start event to players
   emitClientsViewGameStart(newGame);
 
-  // Update clients view
-  updateClientsViewTimers(newGame);
-  updateClientsViewDecks(newGame);
-  updateClientsViewGrid(newGame);
-  updateClientsViewPawns(newGame);
+  // Update clients view with a small delay to ensure all connections are ready
+  setTimeout(() => {
+    updateClientsViewGrid(newGame);
+    updateClientsViewDecks(newGame);
+    updateClientsViewTimers(newGame);
+    updateClientsViewPawns(newGame);
+  }, 150);
 
   // Timer every second
   const gameInterval = setInterval(() => updateGameInterval(newGame), 1000);
@@ -237,14 +233,16 @@ const rollDices = (game) => {
 
   // if last roll we lock every dice
   if (rollsCounter - 1 === rollsMaximum) {
-    game.gameState.deck.dices = GameService.dices.lockEveryDice(dices);
+    // game.gameState.deck.dices = GameService.dices.lockEveryDice(dices);
     if (game.gameState.timer < 5 || combinations.length === 0) {
       game.gameState.timer = 5;
     }
   }
 
-  // Update clients view
-  updateClientsViewDecks(game);
+  // Update clients view with a small delay to ensure animations sync
+  setTimeout(() => {
+    updateClientsViewDecks(game);
+  }, 100);
   updateClientsViewChoices(game);
   updateClientsViewGrid(game);
 };
@@ -326,12 +324,12 @@ const selectCell = (game, cellId, rowIndex, cellIndex) => {
     game.gameState.choices = GameService.init.choices();
 
     // et on remet à jour les vues
+    updateClientsViewTimers(game);
     updateClientsViewPawns(game);
     updateClientsViewScore(game);
     updateClientsViewDecks(game);
     updateClientsViewChoices(game);
     updateClientsViewGrid(game);
-    updateClientsViewTimers(game);
   }
 };
 
@@ -356,6 +354,7 @@ const lockDice = (game, idDice) => {
 };
 
 const botLockDices = async (game) => {
+  await delay(1000);
   const { dices } = game.gameState.deck;
 
   if (game.gameState.deck.rollsCounter <= game.gameState.deck.rollsMaximum) {
@@ -368,10 +367,13 @@ const botLockDices = async (game) => {
     // Lock dices
     for (let i = 0; i < output.length; i++) {
       if (output[i] >= 0.85) {
-        await delay(400);
+        await delay(300);
         lockDice(game, dices[i].id);
       }
     }
+    setTimeout(() => {
+      updateClientsViewDecks(game);
+    }, 100);
   }
 };
 
@@ -381,6 +383,7 @@ const botEasyMakeDecision = async (game) => {
     const choice = game.gameState.choices.availableChoices[i];
     await delay(1500);
     selectChoice(game, choice.id);
+    await delay(1500);
 
     // Find cell that can be checked
     const resultFindCell = GameService.grid.findCellCanBeChecked(
@@ -388,7 +391,6 @@ const botEasyMakeDecision = async (game) => {
     );
     if (resultFindCell) {
       const { cell, rowIndex, cellIndex } = resultFindCell;
-      await delay(1500);
       selectCell(game, cell.id, rowIndex, cellIndex);
       break; // Exit loop
     }
@@ -396,7 +398,7 @@ const botEasyMakeDecision = async (game) => {
 };
 
 const botNormalMakeDecision = async (game) => {
-  botLockDices(game);
+  await botLockDices(game);
   await botEasyMakeDecision(game);
 };
 
@@ -418,8 +420,6 @@ const botPlay = async (game) => {
           await botEasyMakeDecision(game);
         } else if (game.gameState.bot.difficulty === 2) {
           await botNormalMakeDecision(game);
-        } else if (game.gameState.bot.difficulty === 3) {
-          await botEasyMakeDecision(game);
         }
       } else break;
     }

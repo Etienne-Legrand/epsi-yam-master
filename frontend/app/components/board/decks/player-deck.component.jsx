@@ -6,15 +6,21 @@ import Button from "../../button";
 
 const PlayerDeck = () => {
   const socket = useContext(SocketContext);
-  const [displayPlayerDeck, setDisplayPlayerDeck] = useState(false);
-  const [dices, setDices] = useState(Array(5).fill(false));
+  const [displayDeck, setDisplayDeck] = useState(false);
+  const [dices, setDices] = useState([
+    { id: 1, value: "", locked: false },
+    { id: 2, value: "", locked: false },
+    { id: 3, value: "", locked: false },
+    { id: 4, value: "", locked: false },
+    { id: 5, value: "", locked: false },
+  ]);
   const [displayRollButton, setDisplayRollButton] = useState(false);
   const [rollsCounter, setRollsCounter] = useState(0);
   const [rollsMaximum, setRollsMaximum] = useState(3);
 
   useEffect(() => {
     socket.on("game.deck.view-state", (data) => {
-      setDisplayPlayerDeck(data["displayPlayerDeck"]);
+      setDisplayDeck(data["displayPlayerDeck"]);
       if (data["displayPlayerDeck"]) {
         setDisplayRollButton(data["displayRollButton"]);
         setRollsCounter(data["rollsCounter"]);
@@ -41,7 +47,7 @@ const PlayerDeck = () => {
 
   return (
     <View style={styles.deckPlayerContainer}>
-      {displayPlayerDeck && (
+      {displayDeck && (
         <>
           <View style={styles.diceContainer}>
             {dices.map((diceData, index) => (

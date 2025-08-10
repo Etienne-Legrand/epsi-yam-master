@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { Text, TouchableOpacity, StyleSheet } from "react-native";
 import Animated, {
   useAnimatedStyle,
@@ -15,18 +15,28 @@ const Dice = ({ index, locked, value, onPress, opponent, rollsCounter }) => {
 
   // Animation
   const rotation = useSharedValue(0);
+
   const animatedStyle = useAnimatedStyle(() => {
     return {
       transform: [{ rotate: `${rotation.value}deg` }],
     };
   });
+
   useEffect(() => {
-    if (!locked) {
-      rotation.value = withTiming(360, { duration: 700 }, () => {
+    // Skip if rollsCounter is undefined or null
+    if (rollsCounter === undefined || rollsCounter === null) {
+      return;
+    }
+
+    const hasValue = value && value !== "";
+    const shouldAnimate = hasValue && !locked;
+
+    if (shouldAnimate) {
+      rotation.value = withTiming(360, { duration: 900 }, () => {
         rotation.value = 0;
       });
     }
-  }, [rollsCounter, value]);
+  }, [rollsCounter, locked]);
 
   return (
     <Animated.View style={animatedStyle}>
