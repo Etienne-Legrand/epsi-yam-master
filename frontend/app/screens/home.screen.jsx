@@ -7,18 +7,18 @@ export default function HomeScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <Header />
-      <View style={styles.bloc}>
+      <View style={styles.containerButtons}>
         <Button
           onPress={() => navigation.navigate("OnlineGameScreen")}
           text="Jouer en ligne"
           iconName="play"
+          style={styles.button}
         />
-      </View>
-      <View style={styles.bloc}>
         <Button
           onPress={() => navigation.navigate("VsBotGameScreen")}
           text="Versus bot"
           iconNameMaterial="robot-angry"
+          style={styles.button}
         />
       </View>
     </View>
@@ -32,7 +32,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: colors.darkBlue,
   },
-  bloc: {
-    margin: 40,
+  containerButtons: {
+    marginTop: 40,
+  },
+  button: {
+    marginTop: 40,
   },
 });

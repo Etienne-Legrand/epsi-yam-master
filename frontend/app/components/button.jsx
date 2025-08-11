@@ -1,6 +1,6 @@
 import React from "react";
 import { Text, StyleSheet, View, TouchableOpacity } from "react-native";
-import { FontAwesome5 } from "@expo/vector-icons"; // Importation des icônes
+import { FontAwesome5 } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { colors } from "../constants/colors";
 import Animated, {
@@ -10,8 +10,14 @@ import Animated, {
   withRepeat,
 } from "react-native-reanimated";
 
-const Button = ({ onPress, text, iconName, iconNameMaterial, style }) => {
-  // Animation
+const Button = ({
+  onPress,
+  text,
+  iconName,
+  iconNameMaterial,
+  style,
+  disabled = false,
+}) => {
   const scale = useSharedValue(1);
   const opacity = useSharedValue(1);
 
@@ -34,7 +40,11 @@ const Button = ({ onPress, text, iconName, iconNameMaterial, style }) => {
 
   return (
     <Animated.View style={animatedStyle}>
-      <TouchableOpacity style={[styles.button, style]} onPress={handlePress}>
+      <TouchableOpacity
+        style={[styles.button, style, disabled && styles.disabledButton]}
+        onPress={handlePress}
+        disabled={disabled}
+      >
         <View style={styles.innerContainer}>
           {iconName && (
             <FontAwesome5 name={iconName} size={25} color={colors.white} />
@@ -61,6 +71,9 @@ const styles = StyleSheet.create({
     width: 250,
     alignItems: "center",
     justifyContent: "center",
+  },
+  disabledButton: {
+    opacity: 0.2,
   },
   innerContainer: {
     flexDirection: "row",

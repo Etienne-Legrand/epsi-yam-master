@@ -33,16 +33,16 @@ export default function OnlineGameController({ navigation }) {
       setInGame(data["inGame"]);
     });
 
-    // Quand le joueur est en jeu
-    socket.on("game.start", (data) => {
-      console.log("[listen][game.start]:", data);
+    // Quand le joueur quitte la queue
+    socket.on("queue.removed", (data) => {
+      console.log("[listen][queue.leave]:", data);
       setInQueue(data["inQueue"]);
       setInGame(data["inGame"]);
     });
 
-    // Quand le joueur quitte la queue
-    socket.on("queue.removed", (data) => {
-      console.log("[listen][queue.leave]:", data);
+    // Quand le joueur est en jeu
+    socket.on("game.start", (data) => {
+      console.log("[listen][game.start]:", data);
       setInQueue(data["inQueue"]);
       setInGame(data["inGame"]);
     });
@@ -75,7 +75,7 @@ export default function OnlineGameController({ navigation }) {
           <Text style={[styles.paragraph, styles.spacing]}>
             En attente d'un autre joueur...
           </Text>
-          <Button onPress={leaveQueue} text="Quitter la file" iconName="home" />
+          <Button onPress={leaveQueue} text="Revenir au menu" iconName="home" />
         </>
       )}
 
