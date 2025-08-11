@@ -132,13 +132,13 @@ const updateGameInterval = (game) => {
   updateClientsViewTimers(game);
 };
 
-const handlePlayersDisconnects = (game, gameInterval) => {
+const handlePlayersDisconnects = (game) => {
   const disconnect = (playerKey, reason = "disconnect") => {
     // Marquer qui a quitté et pourquoi
     game.gameState.disconnection.reason = reason;
     game.gameState.disconnection.playerKey = playerKey;
 
-    clearInterval(gameInterval);
+    clearInterval(game.gameInterval);
     updateClientsViewEnd(game);
     games = GameService.utils.deleteGame(games, game);
   };
@@ -189,9 +189,11 @@ const createGame = (player1Socket, player2Socket, data) => {
 
   // Timer every second
   const gameInterval = setInterval(() => updateGameInterval(newGame), 1000);
+  // Store the interval reference in the game object for later use
+  newGame.gameInterval = gameInterval;
 
   // When a player disconnects, we clear the timer
-  handlePlayersDisconnects(newGame, gameInterval);
+  handlePlayersDisconnects(newGame);
 };
 
 const newPlayerInQueue = (socket) => {
@@ -321,7 +323,10 @@ const selectCell = (game, cellId, rowIndex, cellIndex) => {
   // Si la partie est terminée, on met à jour la vue de fin
   if (game.gameState.winner || hasNoMorePawns) {
     updateClientsViewEnd(game);
-  } // Sinon on finit le tour
+    clearInterval(game.gameInterval);
+    games = GameService.utils.deleteGame(games, game);
+  }
+  // Sinon on finit le tour
   else {
     game.gameState.currentTurn =
       game.gameState.currentTurn === "player:1" ? "player:2" : "player:1";
