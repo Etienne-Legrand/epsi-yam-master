@@ -34,7 +34,6 @@ const Board = ({ navigation }) => {
   const socket = useContext(SocketContext);
 
   const backToHome = () => {
-    navigation.navigate("HomeScreen");
     // Disconnect from the game
     socket.emit("game.leave");
   };

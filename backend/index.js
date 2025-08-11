@@ -133,18 +133,26 @@ const updateGameInterval = (game) => {
 };
 
 const handlePlayersDisconnects = (game, gameInterval) => {
-  const disconnect = () => {
+  const disconnect = (playerKey, reason = "disconnect") => {
+    // Marquer qui a quitté et pourquoi
+    game.gameState.disconnection.reason = reason;
+    game.gameState.disconnection.playerKey = playerKey;
+
     clearInterval(gameInterval);
     updateClientsViewEnd(game);
     games = GameService.utils.deleteGame(games, game);
   };
 
-  game.player1Socket.on("disconnect", () => disconnect());
-  game.player1Socket.on("game.leave", () => disconnect());
+  game.player1Socket.on("disconnect", () =>
+    disconnect("player:1", "disconnect")
+  );
+  game.player1Socket.on("game.leave", () => disconnect("player:1", "leave"));
 
   if (!game.player2Socket.isBot) {
-    game.player2Socket.on("disconnect", () => disconnect());
-    game.player2Socket.on("game.leave", () => disconnect());
+    game.player2Socket.on("disconnect", () =>
+      disconnect("player:2", "disconnect")
+    );
+    game.player2Socket.on("game.leave", () => disconnect("player:2", "leave"));
   }
 };
 
@@ -159,7 +167,7 @@ const createGame = (player1Socket, player2Socket, data) => {
   newGame["player1Socket"] = player1Socket;
 
   if (player2Socket === "bot") {
-    newGame["player2Socket"] = { id: "bot" + newGame["idGame"], isBot: true };
+    newGame["player2Socket"] = { id: "bot-" + newGame["idGame"], isBot: true };
     newGame.gameState.bot.hasBot = true;
     newGame.gameState.bot.difficulty = data.difficulty;
   } else {

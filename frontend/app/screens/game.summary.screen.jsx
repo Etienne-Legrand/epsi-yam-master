@@ -10,13 +10,18 @@ const GameSummaryScreen = ({ route, navigation }) => {
     setGameSummary(route.params.data);
   }, []);
 
-  // Pour info gameSummary = {isOpponentDisconnected, isWinner, isLoser, isDraw, playerScore, opponentScore }
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Résumé de la partie</Text>
       {gameSummary ? (
         <>
-          {gameSummary.isOpponentDisconnected && (
+          {gameSummary.hasPlayerQuit && (
+            <Text style={styles.text}>Vous avez quitté la partie.</Text>
+          )}
+          {gameSummary.hasOpponentQuit && (
+            <Text style={styles.text}>L'adversaire a quitté la partie.</Text>
+          )}
+          {gameSummary.hasOpponentDisconnected && (
             <Text style={styles.text}>L'adversaire s'est déconnecté.</Text>
           )}
           {gameSummary.isWinner && (

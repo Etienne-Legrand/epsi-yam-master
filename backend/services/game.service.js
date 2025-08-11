@@ -82,6 +82,10 @@ const GAME_INIT = {
     player1Pawns: 12,
     player2Pawns: 12,
     winner: null,
+    disconnection: {
+      reason: null,
+      playerKey: null,
+    },
     grid: [],
     choices: {},
     deck: {},
@@ -247,27 +251,46 @@ const GameService = {
           grid,
         };
       },
-      // Créer le résumé de la partie
-      gameSummary: (playerKey, game) => {
-        const { player1Socket, player2Socket } = game;
-        const { winner, player1Score, player2Score } = game.gameState;
+      /**
+       * Résume l'état final d'une partie pour un joueur donné.
+       * @param {string} playerKey - Identifiant du joueur ("player:1" ou "player:2").
+       * @param {GAME_INIT} game - Objet représentant la partie.
+       * @returns {Object} Résumé des informations de fin de partie.
+       */
+      gameSummary(playerKey, game) {
+        const { player1Socket, player2Socket, gameState } = game;
+        const { winner, player1Score, player2Score, disconnection } = gameState;
 
-        let isOpponentDisconnected = !player1Socket.connected;
-        if (!player2Socket.isBot) {
-          isOpponentDisconnected = !player2Socket.connected;
-        }
+        const isPlayerOne = playerKey === "player:1";
+        const opponentSocket = isPlayerOne ? player2Socket : player1Socket;
 
-        const isWinner = playerKey === winner && !isOpponentDisconnected;
-        const isDraw = winner === null && !isOpponentDisconnected;
-        const isLoser = !isWinner && !isDraw && !isOpponentDisconnected;
+        // Vérifie si l'adversaire est déconnecté (hors cas bot)
+        const hasOpponentDisconnected =
+          !opponentSocket.isBot && !opponentSocket.connected;
 
-        const playerScore =
-          playerKey === "player:1" ? player1Score : player2Score;
-        const opponentScore =
-          playerKey === "player:1" ? player2Score : player1Score;
+        // États de déconnexion/abandon
+        const hasPlayerQuit =
+          disconnection?.playerKey === playerKey &&
+          disconnection.reason === "leave";
+        const hasOpponentQuit =
+          disconnection?.playerKey !== playerKey &&
+          disconnection.reason === "leave";
+        const hasOneQuit =
+          hasPlayerQuit || hasOpponentQuit || hasOpponentDisconnected;
+
+        // États du résultat
+        const isWinner = playerKey === winner;
+        const isDraw = winner === null && !hasOneQuit;
+        const isLoser = !isWinner && !isDraw && !hasOneQuit;
+
+        // Scores
+        const playerScore = isPlayerOne ? player1Score : player2Score;
+        const opponentScore = isPlayerOne ? player2Score : player1Score;
 
         return {
-          isOpponentDisconnected,
+          hasPlayerQuit,
+          hasOpponentQuit,
+          hasOpponentDisconnected,
           isWinner,
           isLoser,
           isDraw,
