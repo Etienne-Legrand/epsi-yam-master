@@ -491,106 +491,122 @@ const GameService = {
       return queue;
     },
 
+    /**
+     * Calcule le score d'un joueur basé sur les alignements dans la grille
+     * @param {string} playerKey - Identifiant du joueur ("player:1" ou "player:2")
+     * @param {Array<Array<Object>>} grid - Grille de jeu 2D
+     * @returns {Object} Objet contenant le score et le gagnant potentiel
+     */
     calculateScore: (playerKey, grid) => {
-      function calculateAlignment(
-        grid,
-        rowIndex,
-        columIndex,
-        playerKey,
-        nbAlign,
-        nbMaxAlign
-      ) {
-        if (grid[rowIndex][columIndex].owner === playerKey) {
-          nbAlign++;
-          if (nbAlign > nbMaxAlign) nbMaxAlign = nbAlign;
-        } else nbAlign = 0;
+      let winner = null;
 
-        return [nbAlign, nbMaxAlign];
+      /**
+       * Vérifie l'alignement des pions
+       * @param {number} rowIndex - L'index de la ligne
+       * @param {number} columnIndex - L'index de la colonne
+       * @param {number} count - Le compteur actuel de pions alignés
+       * @param {number} maxCount - Le nombre maximum de pions alignés
+       * @returns {Array<number>} Un tableau contenant le compteur actuel et le maximum
+       */
+      function checkAlignment(rowIndex, columnIndex, count, maxCount) {
+        if (grid[rowIndex][columnIndex].owner === playerKey) {
+          count++;
+          if (count > maxCount) maxCount = count;
+        } else {
+          count = 0;
+        }
+        return [count, maxCount];
       }
 
-      function calculatePoint(nbMaxAlign) {
-        let score = 0;
-        if (nbMaxAlign === 3) score = 1;
-        else if (nbMaxAlign === 4) score = 2;
-        else if (nbMaxAlign === 5) winner = playerKey;
-        return score;
+      /**
+       * Calcule les points en fonction du nombre de pions alignés
+       * @param {number} maxCount - Le nombre maximum de pions alignés
+       * @returns {number} Les points attribués
+       */
+      function getPoints(maxCount) {
+        if (maxCount === 3) return 1;
+        if (maxCount === 4) return 2;
+        if (maxCount === 5) {
+          winner = playerKey;
+          return 0;
+        }
+        return 0;
       }
 
-      function calculateScoreRowOrColumn(direction) {
+      /**
+       * Calcule le score pour les lignes ou colonnes
+       * @param {boolean} isRow - Indique si l'alignement est sur une ligne (true) ou une colonne (false)
+       * @returns {number} Le score des lignes ou colonnes
+       */
+      function scoreRowsOrCols(isRow) {
         let score = 0;
-        let nbRows = grid.length;
-        let nbCols = grid[0].length;
+        const rows = grid.length;
+        const cols = grid[0].length;
+        const limit = isRow ? rows : cols;
 
-        for (let i = 0; i < (direction === "row" ? nbRows : nbCols); i++) {
-          let nbAlign = 0;
-          let nbMaxAlign = 0;
+        for (let i = 0; i < limit; i++) {
+          let count = 0,
+            maxCount = 0;
 
-          for (let j = 0; j < (direction === "row" ? nbCols : nbRows); j++) {
-            let rowIndex = direction === "row" ? i : j;
-            let columnIndex = direction === "row" ? j : i;
-            [nbAlign, nbMaxAlign] = calculateAlignment(
-              grid,
+          for (let j = 0; j < (isRow ? cols : rows); j++) {
+            const rowIndex = isRow ? i : j;
+            const colIndex = isRow ? j : i;
+            [count, maxCount] = checkAlignment(
               rowIndex,
-              columnIndex,
-              playerKey,
-              nbAlign,
-              nbMaxAlign
+              colIndex,
+              count,
+              maxCount
             );
           }
 
-          score += calculatePoint(nbMaxAlign);
+          score += getPoints(maxCount);
         }
         return score;
       }
 
-      function calculateScoreDiagonals() {
+      /**
+       * Calcule le score pour les diagonales
+       * @returns {number} Le score des diagonales
+       */
+      function scoreDiagonals() {
         let score = 0;
-        let rows = grid.length;
-        let cols = grid[0].length;
+        const rows = grid.length;
+        const cols = grid[0].length;
 
-        for (let slice = 0; slice < rows + cols - 1; ++slice) {
-          let z1 = slice < cols ? 0 : slice - cols + 1;
-          let z2 = slice < rows ? 0 : slice - rows + 1;
+        for (let slice = 0; slice < rows + cols - 1; slice++) {
+          const z1 = slice < cols ? 0 : slice - cols + 1;
+          const z2 = slice < rows ? 0 : slice - rows + 1;
 
-          let nbDiagonalAlign = 0;
-          let nbMaxDiagonalAlign = 0;
-          let nbAntiDiagonalAlign = 0;
-          let nbMaxAntiDiagonalAlign = 0;
+          let diagCount = 0,
+            maxDiagCount = 0;
+          let antiDiagCount = 0,
+            maxAntiDiagCount = 0;
 
-          for (let j = slice - z2; j >= z1; --j) {
-            // Diagonale
-            [nbDiagonalAlign, nbMaxDiagonalAlign] = calculateAlignment(
-              grid,
+          for (let j = slice - z2; j >= z1; j--) {
+            // Diagonale principale
+            [diagCount, maxDiagCount] = checkAlignment(
               j,
               slice - j,
-              playerKey,
-              nbDiagonalAlign,
-              nbMaxDiagonalAlign
+              diagCount,
+              maxDiagCount
             );
 
             // Anti-diagonale
-            [nbAntiDiagonalAlign, nbMaxAntiDiagonalAlign] = calculateAlignment(
-              grid,
+            [antiDiagCount, maxAntiDiagCount] = checkAlignment(
               rows - 1 - j,
               slice - j,
-              playerKey,
-              nbAntiDiagonalAlign,
-              nbMaxAntiDiagonalAlign
+              antiDiagCount,
+              maxAntiDiagCount
             );
           }
 
-          // Ajout du score pour les diagonales et anti-diagonales
-          score += calculatePoint(nbMaxDiagonalAlign);
-          score += calculatePoint(nbMaxAntiDiagonalAlign);
+          score += getPoints(maxDiagCount) + getPoints(maxAntiDiagCount);
         }
         return score;
       }
 
-      let winner = null;
-      let score = calculateScoreRowOrColumn("row");
-      score += calculateScoreRowOrColumn("column");
-      score += calculateScoreDiagonals();
-
+      const score =
+        scoreRowsOrCols(true) + scoreRowsOrCols(false) + scoreDiagonals();
       return { score, winner };
     },
   },

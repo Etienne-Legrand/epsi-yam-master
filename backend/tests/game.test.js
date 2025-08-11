@@ -1,4 +1,4 @@
-import GameService from "../services/game.service.js";
+const GameService = require("../services/game.service.js");
 
 const grid = [
   [
@@ -53,6 +53,169 @@ const grid = [
   ],
 ];
 
+const grid2 = [
+  [
+    {
+      viewContent: "1",
+      id: "brelan1",
+      owner: null,
+      canBeChecked: false,
+    },
+    {
+      viewContent: "3",
+      id: "brelan3",
+      owner: null,
+      canBeChecked: false,
+    },
+    {
+      viewContent: "Défi",
+      id: "defi",
+      owner: null,
+      canBeChecked: false,
+    },
+    {
+      viewContent: "4",
+      id: "brelan4",
+      owner: null,
+      canBeChecked: false,
+    },
+    {
+      viewContent: "6",
+      id: "brelan6",
+      owner: null,
+      canBeChecked: false,
+    },
+  ],
+  [
+    {
+      viewContent: "2",
+      id: "brelan2",
+      owner: "player:1",
+      canBeChecked: false,
+    },
+    {
+      viewContent: "Carré",
+      id: "carre",
+      owner: "player:2",
+      canBeChecked: false,
+    },
+    {
+      viewContent: "Sec",
+      id: "sec",
+      owner: "player:2",
+      canBeChecked: false,
+    },
+    {
+      viewContent: "Full",
+      id: "full",
+      owner: "player:2",
+      canBeChecked: false,
+    },
+    {
+      viewContent: "5",
+      id: "brelan5",
+      owner: "player:2",
+      canBeChecked: false,
+    },
+  ],
+  [
+    {
+      viewContent: "≤8",
+      id: "moinshuit",
+      owner: "player:1",
+      canBeChecked: false,
+    },
+    {
+      viewContent: "Full",
+      id: "full",
+      owner: "player:2",
+      canBeChecked: false,
+    },
+    {
+      viewContent: "Yam",
+      id: "yam",
+      owner: "player:2",
+      canBeChecked: false,
+    },
+    {
+      viewContent: "Défi",
+      id: "defi",
+      owner: "player:2",
+      canBeChecked: false,
+    },
+    {
+      viewContent: "Suite",
+      id: "suite",
+      owner: "player:2",
+      canBeChecked: false,
+    },
+  ],
+  [
+    {
+      viewContent: "6",
+      id: "brelan6",
+      owner: "player:1",
+      canBeChecked: false,
+    },
+    {
+      viewContent: "Sec",
+      id: "sec",
+      owner: "player:2",
+      canBeChecked: false,
+    },
+    {
+      viewContent: "Suite",
+      id: "suite",
+      owner: "player:2",
+      canBeChecked: false,
+    },
+    {
+      viewContent: "≤8",
+      id: "moinshuit",
+      owner: "player:2",
+      canBeChecked: false,
+    },
+    {
+      viewContent: "1",
+      id: "brelan1",
+      owner: "player:2",
+      canBeChecked: false,
+    },
+  ],
+  [
+    {
+      viewContent: "3",
+      id: "brelan3",
+      owner: "player:2",
+      canBeChecked: false,
+    },
+    {
+      viewContent: "2",
+      id: "brelan2",
+      owner: "player:1",
+      canBeChecked: false,
+    },
+    {
+      viewContent: "Carré",
+      id: "carre",
+      owner: "player:1",
+      canBeChecked: false,
+    },
+    {
+      viewContent: "5",
+      id: "brelan5",
+      owner: "player:1",
+      canBeChecked: false,
+    },
+    {
+      viewContent: "4",
+      id: "brelan4",
+      owner: "player:1",
+      canBeChecked: false,
+    },
+  ],
+];
+
 const displayGrid = (grid) => {
   let output = "";
   for (let row of grid) {
@@ -73,16 +236,24 @@ const displayGrid = (grid) => {
 };
 
 // Affichage du tableau
-displayGrid(grid);
+displayGrid(grid2);
 
 // Test de la fonction calculateScore
 describe("GameService", () => {
   describe("calculateScore", () => {
-    it("should correctly calculate the score", () => {
+    it("should correctly calculate the score of grid", () => {
       const scorePlayer1 = GameService.utils.calculateScore("player:1", grid);
       const scorePlayer2 = GameService.utils.calculateScore("player:2", grid);
       expect(scorePlayer1.score).toEqual(9);
       expect(scorePlayer2.score).toEqual(0);
+      expect(scorePlayer1.winner).toEqual(null);
+    });
+
+    it("should correctly calculate the score of grid2", () => {
+      const scorePlayer1 = GameService.utils.calculateScore("player:1", grid2);
+      const scorePlayer2 = GameService.utils.calculateScore("player:2", grid2);
+      expect(scorePlayer1.score).toEqual(3);
+      expect(scorePlayer2.score).toEqual(15);
       expect(scorePlayer1.winner).toEqual(null);
     });
 
