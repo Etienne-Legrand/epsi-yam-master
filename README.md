@@ -2,9 +2,12 @@
 
 Jeu de dés Yam master multijoueur en temps réel. Application mobile React Native avec backend Node.js, communication WebSocket et IA intégrée.
 
+https://github.com/user-attachments/assets/300c8481-284f-4004-9d15-e980647681b3
+
 ## Prérequis
 
 1. Node.js 18+
+2. (Optionnel) App Expo SDK 51
 
 ## Installation
 
