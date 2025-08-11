@@ -1,33 +1,38 @@
-# Application Yam Master - Architecture applicative
+# Expo React Native jeu Yam Master
 
-Cette application est un jeu mobile codé en react-native, ayant pour but de travailler sur l'architecture applicative et les websockets.
+Jeu de dés Yam master multijoueur en temps réel. Application mobile React Native avec backend Node.js, communication WebSocket et IA intégrée.
 
-Deux modes de jeu sont disponibles sur cette v1 de l'application :
+## Prérequis
 
-- un mode multijoueur ou deux joueurs s'affronte
-- un versus bot, avec actuellement deux niveaux disponibles, le niveau difficile n'est pas fini
+1. Node.js 18+
 
-Le bot utilise des fonctions conditionnelles ainsi qu'un réseau de neuronne pour le niveau moyen.
-On a créé le model d'IA par réseau de neuronne avec la bibliothèque: Brain.js
+## Installation
 
-La palette de couleur est inspirée de OIL 6 PALETTE de GrafxKid (https://lospec.com/palette-list/oil-6). Le jeu a été maquetté sur Figma.
-Les animations des dés et des boutons ont été réalisées avec react reanimated (https://www.reanimated3.com/).
+1. Clonez ce dépôt sur votre machine locale.
+2. Déplacez-vous dans le répertoire du projet
+3. Exécutez la commande `npm run install:all` pour installer les dépendances du frontend et backend.
 
-## 🚀 How to use
+## Utilisation
 
-### Démarrer l'application web/mobile (front)
+1. Pour une utilisation mobile : ouvrez le fichier `.env` du dossier `frontend` et modifiez la variable `SOCKET_URL_MOBILE` pour pointer vers votre adresse IP.
+2. Exécutez la commande `npm run dev:backend` pour démarrer le serveur backend WebSocket.
+3. Exécutez la commande `npm run dev:frontend` pour démarrer l'application React Native.
 
-- Lancer `yarn` ou `npm install` pour installer les dépendances.
-- Utilisation sur mobile : ouvrir `App.js` et changer le `socketEndpoint` en haut du fichier pour pointer vers votre ip.
-- Exécuter `yarn start` ou `npm run start` pour démarrer l'application web/mobile.
+## Fonctionnalités
 
-### Démarrer le serveur node.js websocket (back)
+- Deux modes de jeu : multijoueur et versus IA
+- Communication temps réel via WebSocket
+- Intelligence artificielle avec réseau de neurones (Brain.js)
+- Niveaux de difficulté IA (facile, moyen, difficile en cours)
+- Interface web et mobile
+- Gestion des dés et mécaniques de jeu Yam master
+- Design inspiré de la palette OIL 6 de GrafxKid (https://lospec.com/palette-list/oil-6)
+- Animations réalisées avec React Reanimated
 
-- `cd` vers le dossier `websocket-server-folder`
-- Exécuter `yarn` or `npm install` pour installer les dépendances.
-- Exécuter `yarn start` or `npm run start` pour démarrer le serveur node.js websocket.
+## Architecture technique
 
-## 📝 Notes
-
-Le code de l'IA se situe dans le dossier IA du dossier `websocket-server-folder`.
-Dans le dossier `data` en input on a les valeurs des dés et en output les dés à lock sous format d'un tableau de valeurs booléennes.
+- **Frontend** : React Native avec Expo
+- **Backend** : Node.js avec WebSocket
+- **IA** : Brain.js pour le réseau de neurones
+- **Animations** : React Reanimated
+- **Design** : Maquetté sur Figma
