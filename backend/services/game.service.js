@@ -92,6 +92,7 @@ const GAME_INIT = {
     bot: {
       hasBot: false,
       difficulty: null,
+      shouldStop: false,
     },
   },
 };
@@ -444,6 +445,15 @@ const GameService = {
         }
       }
       return -1;
+    },
+
+    gameExists: (games, idGame) => {
+      for (let i = 0; i < games.length; i++) {
+        if (games[i].idGame === idGame) {
+          return true;
+        }
+      }
+      return false;
     },
 
     findGameIndexBySocketId: (games, socketId) => {

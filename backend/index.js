@@ -108,6 +108,14 @@ const updateGameInterval = (game) => {
 
   // if timer is down to 0, we end turn
   if (game.gameState.timer === 0) {
+    // Arrêter le bot si c'était son tour
+    if (
+      game.gameState.currentTurn === "player:2" &&
+      game.gameState.bot.hasBot
+    ) {
+      game.gameState.bot.shouldStop = true;
+    }
+
     // switch currentTurn variable
     game.gameState.currentTurn =
       game.gameState.currentTurn === "player:1" ? "player:2" : "player:1";
@@ -134,25 +142,75 @@ const updateGameInterval = (game) => {
 
 const handlePlayersDisconnects = (game) => {
   const disconnect = (playerKey, reason = "disconnect") => {
-    // Marquer qui a quitté et pourquoi
+    game.gameState.bot.shouldStop = true;
     game.gameState.disconnection.reason = reason;
     game.gameState.disconnection.playerKey = playerKey;
-
     clearInterval(game.gameInterval);
+    removeGameEventListeners(game);
     updateClientsViewEnd(game);
     games = GameService.utils.deleteGame(games, game);
   };
 
-  game.player1Socket.on("disconnect", () =>
-    disconnect("player:1", "disconnect")
-  );
-  game.player1Socket.on("game.leave", () => disconnect("player:1", "leave"));
+  // Supprimer les anciens écouteurs s'ils existent
+  removeGameEventListeners(game);
+
+  // Ajouter les nouveaux écouteurs
+  const disconnectPlayer1 = () => disconnect("player:1", "disconnect");
+  const leavePlayer1 = () => disconnect("player:1", "leave");
+
+  game.player1Socket.on("disconnect", disconnectPlayer1);
+  game.player1Socket.on("game.leave", leavePlayer1);
+
+  // Stocker les références des écouteurs pour pouvoir les supprimer plus tard
+  game.eventListeners = {
+    player1: {
+      disconnect: disconnectPlayer1,
+      leave: leavePlayer1,
+    },
+  };
 
   if (!game.player2Socket.isBot) {
-    game.player2Socket.on("disconnect", () =>
-      disconnect("player:2", "disconnect")
-    );
-    game.player2Socket.on("game.leave", () => disconnect("player:2", "leave"));
+    const disconnectPlayer2 = () => disconnect("player:2", "disconnect");
+    const leavePlayer2 = () => disconnect("player:2", "leave");
+
+    game.player2Socket.on("disconnect", disconnectPlayer2);
+    game.player2Socket.on("game.leave", leavePlayer2);
+
+    game.eventListeners.player2 = {
+      disconnect: disconnectPlayer2,
+      leave: leavePlayer2,
+    };
+  }
+};
+
+// Nouvelle fonction pour supprimer les écouteurs
+const removeGameEventListeners = (game) => {
+  if (game.eventListeners) {
+    // Supprimer les écouteurs du player1
+    if (game.eventListeners.player1) {
+      game.player1Socket.removeListener(
+        "disconnect",
+        game.eventListeners.player1.disconnect
+      );
+      game.player1Socket.removeListener(
+        "game.leave",
+        game.eventListeners.player1.leave
+      );
+    }
+
+    // Supprimer les écouteurs du player2 s'il n'est pas un bot
+    if (game.eventListeners.player2 && !game.player2Socket.isBot) {
+      game.player2Socket.removeListener(
+        "disconnect",
+        game.eventListeners.player2.disconnect
+      );
+      game.player2Socket.removeListener(
+        "game.leave",
+        game.eventListeners.player2.leave
+      );
+    }
+
+    delete game.eventListeners;
   }
 };
 
@@ -185,7 +243,7 @@ const createGame = (player1Socket, player2Socket, data) => {
     updateClientsViewDecks(newGame);
     updateClientsViewTimers(newGame);
     updateClientsViewPawns(newGame);
-  }, 150);
+  }, 200);
 
   // Timer every second
   const gameInterval = setInterval(() => updateGameInterval(newGame), 1000);
@@ -322,8 +380,10 @@ const selectCell = (game, cellId, rowIndex, cellIndex) => {
 
   // Si la partie est terminée, on met à jour la vue de fin
   if (game.gameState.winner || hasNoMorePawns) {
-    updateClientsViewEnd(game);
+    game.gameState.bot.shouldStop = true;
     clearInterval(game.gameInterval);
+    removeGameEventListeners(game);
+    updateClientsViewEnd(game);
     games = GameService.utils.deleteGame(games, game);
   }
   // Sinon on finit le tour
@@ -366,8 +426,20 @@ const lockDice = (game, idDice) => {
   updateClientsViewDecks(game);
 };
 
+// Fonction utilitaire pour vérifier si le bot doit s'arrêter
+const shouldBotStop = (game) => {
+  return (
+    game.gameState.bot.shouldStop ||
+    !GameService.utils.gameExists(games, game.idGame)
+  );
+};
+
 const botLockDices = async (game) => {
+  if (shouldBotStop(game)) return;
+
   await delay(1000);
+  if (shouldBotStop(game)) return;
+
   const { dices } = game.gameState.deck;
 
   if (game.gameState.deck.rollsCounter <= game.gameState.deck.rollsMaximum) {
@@ -377,40 +449,47 @@ const botLockDices = async (game) => {
     // Run AI model to calculate which dices to lock
     const dicesFormatted = formatDicesRunAI(dices);
     const output = runModel(modelLockDices, dicesFormatted);
+
     // Lock dices
-    for (let i = 0; i < output.length; i++) {
+    for (let i = 0; i < output.length && !shouldBotStop(game); i++) {
       if (output[i] >= 0.85) {
         await delay(300);
         lockDice(game, dices[i].id);
       }
     }
-    setTimeout(() => {
-      updateClientsViewDecks(game);
-    }, 100);
+
+    if (!shouldBotStop(game)) {
+      setTimeout(() => updateClientsViewDecks(game), 100);
+    }
   }
 };
 
 const botEasyMakeDecision = async (game) => {
-  // Loop through all choices available
-  for (let i = 0; i < game.gameState.choices.availableChoices.length; i++) {
-    const choice = game.gameState.choices.availableChoices[i];
+  if (shouldBotStop(game)) return;
+
+  const choices = game.gameState.choices.availableChoices;
+
+  // Select a choice available
+  for (let i = 0; i < choices.length && !shouldBotStop(game); i++) {
     await delay(1500);
+    const choice = choices[i];
     selectChoice(game, choice.id);
     await delay(1500);
 
-    // Find cell that can be checked
     const resultFindCell = GameService.grid.findCellCanBeChecked(
       game.gameState.grid
     );
     if (resultFindCell) {
       const { cell, rowIndex, cellIndex } = resultFindCell;
       selectCell(game, cell.id, rowIndex, cellIndex);
-      break; // Exit loop
+      break;
     }
   }
 };
 
 const botNormalMakeDecision = async (game) => {
+  if (shouldBotStop(game)) return;
+
   await botLockDices(game);
   await botEasyMakeDecision(game);
 };
@@ -418,23 +497,19 @@ const botNormalMakeDecision = async (game) => {
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const botPlay = async (game) => {
-  if (game.gameState.bot.hasBot && game.gameState.currentTurn === "player:2") {
-    // 3 rolls max
-    for (let i = 0; i < 3; i++) {
-      if (
-        game.gameState.bot.hasBot &&
-        game.gameState.currentTurn === "player:2"
-      ) {
-        await delay(1500);
-        rollDices(game);
+  if (!game.gameState.bot.hasBot || game.gameState.currentTurn !== "player:2") {
+    return;
+  }
 
-        // make decision based on difficulty
-        if (game.gameState.bot.difficulty === 1) {
-          await botEasyMakeDecision(game);
-        } else if (game.gameState.bot.difficulty === 2) {
-          await botNormalMakeDecision(game);
-        }
-      } else break;
+  // 3 rolls max
+  for (let i = 0; i < 3 && !shouldBotStop(game); i++) {
+    await delay(1500);
+    rollDices(game);
+
+    if (game.gameState.bot.difficulty === 1) {
+      await botEasyMakeDecision(game);
+    } else if (game.gameState.bot.difficulty === 2) {
+      await botNormalMakeDecision(game);
     }
   }
 };
